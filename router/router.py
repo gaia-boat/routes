@@ -1,3 +1,6 @@
+from router.map_route import map_route
+
+
 class GaiaRouter():
     def __init__(self, *args, **kwargs):
         pass

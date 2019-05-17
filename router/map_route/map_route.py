@@ -14,6 +14,10 @@ import math
 five_meters = 0.00004499633
 
 class MapRouter():
+    """
+    Class with the mapping functions for the router.
+    """
+
     def __init__(self, x_begin, x_end, y_begin, y_end):
         self.points = [
             (x_begin, y_begin), (x_begin, y_end),
@@ -26,8 +30,8 @@ class MapRouter():
 
     def set_area(self):
         """
-        Sets the area of operations for the boat, in a 2d array with geolocation
-        points.
+        Sets the area of operations for the boat, in a 2d array with
+        geolocation points.
         """
         y_amp = abs(self.points[0][1] - self.points[1][1])
         x_amp = abs(self.points[0][0] - self.points[2][0])
@@ -36,8 +40,8 @@ class MapRouter():
 
     def evade(self, current_pos, obstruction_size):
         """
-        Traces and creates a evasion route if there is something obstructing the
-        boat's path.
+        Traces and creates a evasion route if there is something obstructing
+        the boat's path.
         """
         self.evasion_in_progress = True
         # stuff
@@ -49,8 +53,11 @@ class MapRouter():
         """
         Traces a route using the area of operations map.
         """
-        if(self.current_position[0] < self.points[0][0] or self.current_position[0] > self.points[3][0] or self.current_position[1] < self.points[0][1] or self.current_position[1] > self.points[3][1]):
-            return[]
+        if(self.current_position[0] < self.points[0][0]
+                or self.current_position[0] > self.points[3][0]
+                or self.current_position[1] < self.points[0][1]
+                or self.current_position[1] > self.points[3][1]):
+            return []
         route = []
 
         x = self.current_position[0]
@@ -59,13 +66,13 @@ class MapRouter():
         
         # goes to the point x0 
         while(x - self.points[0][0] >= five_meters):
-            x -= five_meters 
-            route.append((x,y))
+            x -= five_meters
+            route.append((x, y))
 
-        # goes to the point y0 
+        # goes to the point y0
         while(y - self.points[0][1] >= five_meters):
-            y -= five_meters 
-            route.append((x,y))
+            y -= five_meters
+            route.append((x, y))
 
         # travels the whole area        
         while(self.points[3][1] - y >= five_meters):
@@ -110,6 +117,8 @@ class MapRouter():
             route.append((x,y))
             
     def _trace_base_route(self):
+        """"""
+
         x = self.current_position[0]
         y = self.current_position[1]
 
@@ -118,20 +127,20 @@ class MapRouter():
         if(x > self.base_location[0]):
             while(x - self.base_location[0] >= five_meters):
                 x -= five_meters
-                route.append((x,y))
+                route.append((x, y))
         else:
-            while(self.base_location[0] - x  >= five_meters):
+            while(self.base_location[0] - x >= five_meters):
                 x += five_meters
-                route.append((x,y))
+                route.append((x, y))
 
         if(y > self.base_location[1]):
             while(y - self.base_location[1] >= five_meters):
                 y -= five_meters
-                route.append((x,y))
+                route.append((x, y))
         else:
-            while(self.base_location[1] - y  >= five_meters):
+            while(self.base_location[1] - y >= five_meters):
                 y += five_meters
-                route.append((x,y))
+                route.append((x, y))
         return route
 
     def _trace_evasion(self, parameter_list):
