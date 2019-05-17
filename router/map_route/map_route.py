@@ -1,3 +1,5 @@
+import math
+
 # notes:
 # Brazil is mostly on a negative latitude and always on a negative longitude
 # A.O. representation
@@ -7,6 +9,9 @@
 # |                            |
 # |                            |
 # (xb,yb)----------------------(xb,ye)
+
+#five meters in degrees
+five_meters = 0.00004499633
 
 class MapRouter():
     def __init__(self, x_begin, x_end, y_begin, y_end):
@@ -48,14 +53,9 @@ class MapRouter():
             return[]
         route = []
 
-        #five meters in degrees
-        # five_meters = 0.00004499633
-        five_meters = 1
-
         x = self.current_position[0]
         y = self.current_position[1]
         route.append((x,y))
-
         
         # goes to the point x0 
         while(x - self.points[0][0] >= five_meters):
@@ -78,8 +78,6 @@ class MapRouter():
         return route
 
     def _unidimentional_router(self,pos,dimention):
-        # five_meters = 0.00004499633
-        five_meters = 1
         route = []
         if(self.points[3][dimention] - pos <= five_meters):
             while(pos - self.points[0][dimention] > five_meters):
@@ -91,10 +89,27 @@ class MapRouter():
                 pos += five_meters
                 route.append(pos)
         return route
-    def _trace_base_route(self):
 
-        five_meters = 0.00004499633
+    def _trace_diagonal_route(self,pos,dest):
+        x = pos[0]
+        y = pos[1]
+        dist_x = dest - x
+        dist_y = dest - y
+        dist_d = math.sqrt((dist_x*dist_x) + (dist_y*dist_y))
+        five_meters_x = five_meters*dist_x/dist_d
+        five_meters_y = five_meters*dist_y/dist_d
+        if(pos[0] > dest[0]):
+            five_meters_x = five_meters_x * -1
+        if(pos[1] > dest[1]):
+            five_meters_y = five_meters_y * -1
         
+        route = []
+        while(abs(x - dest[0]) > five_meters_x and abs(y - dest[1]) > five_meters_y):
+            x += five_meters_x
+            y += five_meters_y
+            route.append((x,y))
+            
+    def _trace_base_route(self):
         x = self.current_position[0]
         y = self.current_position[1]
 
