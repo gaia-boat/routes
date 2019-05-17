@@ -16,7 +16,7 @@ class MapRouter():
         self.area_of_operations = []
         self.on_route = False
         self.evasion_in_progress = False
-        self.current_position = (5, 5)   # tuple(latitude, longitude)
+        self.current_position = (30, 30)   # tuple(latitude, longitude)
         self.base_location = (0, 0)   # tuple(latitude, longitude)
 
     def set_area(self):
@@ -48,8 +48,9 @@ class MapRouter():
             return[]
         route = []
 
-        #five meters in graus
-        five_meters = 0.00004499633
+        #five meters in degrees
+        # five_meters = 0.00004499633
+        five_meters = 1
 
         x = self.current_position[0]
         y = self.current_position[1]
@@ -67,16 +68,29 @@ class MapRouter():
             route.append((x,y))
 
         # travels the whole area        
-        while(self.points[3][0] - x >= five_meters):
-            while(self.points[3][1] - y >= five_meters):
-                y += five_meters 
+        while(self.points[3][1] - y >= five_meters):
+            list_of_x = self._unidimentional_router(x,0)
+            for new_x in list_of_x:
+                x = new_x
                 route.append((x,y))
-
-            x += five_meters 
+            y += five_meters 
             route.append((x,y))
-
         return route
 
+    def _unidimentional_router(self,pos,dimention):
+        # five_meters = 0.00004499633
+        five_meters = 1
+        route = []
+        if(self.points[3][dimention] - pos <= five_meters):
+            while(pos - self.points[0][dimention] > five_meters):
+                pos -= five_meters
+                print(pos)
+                route.append(pos)
+        else:
+            while(self.points[3][dimention] - pos > five_meters):
+                pos += five_meters
+                route.append(pos)
+        return route
     def _trace_base_route(self):
 
         five_meters = 0.00004499633
