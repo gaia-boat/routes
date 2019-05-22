@@ -1,4 +1,5 @@
 import math
+from router.macros import GPS_PRECISION
 
 # notes:
 # Brazil is mostly on a negative latitude and always on a negative longitude
@@ -10,8 +11,6 @@ import math
 # |                            |
 # (xb,yb)----------------------(xb,ye)
 
-#five meters in degrees
-five_meters = 0.00004499633
 
 class MapRouter():
     """
@@ -36,22 +35,20 @@ class MapRouter():
         y_amp = abs(self.points[0][1] - self.points[1][1])
         x_amp = abs(self.points[0][0] - self.points[2][0])
         self.area_of_operations = [x_amp][y_amp]
-        # need to set all points as geo locations
 
     def evade(self, current_pos, obstruction_size):
         """
         Traces and creates a evasion route if there is something obstructing
         the boat's path.
         """
-        self.evasion_in_progress = True
-        # stuff
-        self.evasion_in_progress = False
+        pass
 
-    # To trace the routes it is assumed that the points are in minutes if
-    # they are not in seconds they must be converted before this method.
     def _trace_collection_route(self):
         """
         Traces a route using the area of operations map.
+        To trace the routes it is assumed that the points are in minutes if
+        they are not in seconds they must be converted before this method is
+        used.
         """
         if(self.current_position[0] < self.points[0][0]
                 or self.current_position[0] > self.points[3][0]
@@ -62,62 +59,73 @@ class MapRouter():
 
         x = self.current_position[0]
         y = self.current_position[1]
-        route.append((x,y))
-        
-        # goes to the point x0 
-        while(x - self.points[0][0] >= five_meters):
-            x -= five_meters
+        route.append((x, y))
+
+        # go to the initial point in x axis
+        while(x - self.points[0][0] >= GPS_PRECISION):
+            x -= GPS_PRECISION
             route.append((x, y))
 
-        # goes to the point y0
-        while(y - self.points[0][1] >= five_meters):
-            y -= five_meters
+        # go to the initial point in y axis
+        while(y - self.points[0][1] >= GPS_PRECISION):
+            y -= GPS_PRECISION
             route.append((x, y))
 
-        # travels the whole area        
-        while(self.points[3][1] - y >= five_meters):
-            list_of_x = self._unidimentional_router(x,0)
+        # travels the whole area
+        while(self.points[3][1] - y >= GPS_PRECISION):
+            list_of_x = self._unidimentional_router(x, 0)
             for new_x in list_of_x:
                 x = new_x
-                route.append((x,y))
-            y += five_meters 
-            route.append((x,y))
+                route.append((x, y))
+            y += GPS_PRECISION
+            route.append((x, y))
         return route
 
-    def _unidimentional_router(self,pos,dimention):
+    def _unidimentional_router(self, pos, dimention):
+        """
+        Creates a list of positions to be followed, tracing linear routes.
+        """
         route = []
-        if(self.points[3][dimention] - pos <= five_meters):
-            while(pos - self.points[0][dimention] > five_meters):
-                pos -= five_meters
+        if(self.points[3][dimention] - pos <= GPS_PRECISION):
+            while(pos - self.points[0][dimention] > GPS_PRECISION):
+                pos -= GPS_PRECISION
                 print(pos)
                 route.append(pos)
         else:
-            while(self.points[3][dimention] - pos > five_meters):
-                pos += five_meters
+            while(self.points[3][dimention] - pos > GPS_PRECISION):
+                pos += GPS_PRECISION
                 route.append(pos)
         return route
 
-    def _trace_diagonal_route(self,pos,dest):
+    def _trace_diagonal_route(self, pos, dest):
+        """
+        Traces a diagonal, or angled route moving at two axis at once.
+        """
         x = pos[0]
         y = pos[1]
         dist_x = dest - x
         dist_y = dest - y
         dist_d = math.sqrt((dist_x*dist_x) + (dist_y*dist_y))
-        five_meters_x = five_meters*dist_x/dist_d
-        five_meters_y = five_meters*dist_y/dist_d
+
+        GPS_PRECISION_x = GPS_PRECISION*dist_x/dist_d
+        GPS_PRECISION_y = GPS_PRECISION*dist_y/dist_d
+
         if(pos[0] > dest[0]):
-            five_meters_x = five_meters_x * -1
+            GPS_PRECISION_x = GPS_PRECISION_x * -1
         if(pos[1] > dest[1]):
-            five_meters_y = five_meters_y * -1
-        
-        route = []
-        while(abs(x - dest[0]) > five_meters_x and abs(y - dest[1]) > five_meters_y):
-            x += five_meters_x
-            y += five_meters_y
-            route.append((x,y))
-            
+            GPS_PRECISION_y = GPS_PRECISION_y * -1
+
+        route = list()
+        while(abs(x - dest[0]) > GPS_PRECISION_x
+                and abs(y - dest[1]) > GPS_PRECISION_y):
+            x += GPS_PRECISION_x
+            y += GPS_PRECISION_y
+            route.append((x, y))
+
     def _trace_base_route(self):
-        """"""
+        """
+        Traces the most basic route given an area of operation.
+        """
 
         x = self.current_position[0]
         y = self.current_position[1]
@@ -125,21 +133,21 @@ class MapRouter():
         route = []
 
         if(x > self.base_location[0]):
-            while(x - self.base_location[0] >= five_meters):
-                x -= five_meters
+            while(x - self.base_location[0] >= GPS_PRECISION):
+                x -= GPS_PRECISION
                 route.append((x, y))
         else:
-            while(self.base_location[0] - x >= five_meters):
-                x += five_meters
+            while(self.base_location[0] - x >= GPS_PRECISION):
+                x += GPS_PRECISION
                 route.append((x, y))
 
         if(y > self.base_location[1]):
-            while(y - self.base_location[1] >= five_meters):
-                y -= five_meters
+            while(y - self.base_location[1] >= GPS_PRECISION):
+                y -= GPS_PRECISION
                 route.append((x, y))
         else:
-            while(self.base_location[1] - y >= five_meters):
-                y += five_meters
+            while(self.base_location[1] - y >= GPS_PRECISION):
+                y += GPS_PRECISION
                 route.append((x, y))
         return route
 
