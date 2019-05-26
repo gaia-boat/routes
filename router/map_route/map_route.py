@@ -12,6 +12,15 @@ from router.macros import GPS_PRECISION
 # (xb,yb)----------------------(xb,ye)
 
 
+# rota sera subida e decida, tipo comprimento de onda
+# funcsobeedesce()->verifica se sobe x->se puder, x++, senao fim de rota
+# ->iterar pelo y ascendentemente sempre adicionando o par de coordenadas na rota
+# ->verifica se pode subir x->se puder, x++,senao fim de rota
+# ->iterar pelo y descendentemente sempre adicionando o par de coordenadas na rota->repete
+
+# enquanto estiver em coleta, vou chamar sobeedesce ate acabar a rota.
+# funcao de desvio deve funcionar do msm jeito
+
 class MapRouter():
     """
     Class with the mapping functions for the router.
@@ -89,7 +98,6 @@ class MapRouter():
         if(self.points[3][dimention] - pos <= GPS_PRECISION):
             while(pos - self.points[0][dimention] > GPS_PRECISION):
                 pos -= GPS_PRECISION
-                print(pos)
                 route.append(pos)
         else:
             while(self.points[3][dimention] - pos > GPS_PRECISION):
