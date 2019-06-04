@@ -31,13 +31,13 @@ class MapRouter():
         self.current_position = current
         self.base_location = base
 
-    def trace_diagonal_route(self, destination):
+    def trace_diagonal_route(self, position, destination):
         """
         Traces the smallest route between the current position and border_points_array given
         destination.
         """
-        x = self.current_position[0]
-        y = self.current_position[1]
+        x = position[0]
+        y = position[1]
         distance_x = destination[0] - x
         distance_y = destination[1] - y
 
@@ -59,7 +59,7 @@ class MapRouter():
         """
         Traces border_points_array route back to the base.
         """
-        return self.trace_diagonal_route(self.base_location)
+        return self.trace_diagonal_route(self.current_position,self.base_location)
 
     def trace_collection_route(self):
         """
@@ -128,26 +128,71 @@ class MapRouter():
         """
         Gets the middle point inside the operation area.
         """
-        return tuple((self.points[0][0] - self.points[1][0]) / 2,
-                     (self.points[0][1] - self.points[1][1]) / 2)
+        return tuple(((self.points[1][0] - self.points[0][0]) / 2,
+                     (self.points[1][1] - self.points[0][1]) / 2))
 
-    def _create_evasion(self, current_pos):
+    def _create_evasion(self, current_pos, route):
         center = self._get_center()
 
-        alpha = 60
-        beta = 300
+        alpha = 60 * math.pi / 180
+        beta = 300 * math.pi / 180
 
-        # fix cos and sen
+        point_evade = route.pop(0)
+        
+        dis_x = (current_pos[0]-route[0][0])
+        dis_y = (current_pos[1] -route[0][1])
+        dis = math.sqrt(dis_x*dis_x+dis_y*dis_y)
+        if(dis <= GPS_PRECISION):
+            return route
+
         possible_points = []
+        x = route[0][0] - current_pos[0]
+        y = route[0][1] - current_pos[1]
+        
         possible_points.append(
-            tuple((current_pos[0] * cos(alpha) - current_pos[1] * sen(alpha), current_pos[0] * sen(alpha) + current_pos[1] * cos(alpha))))
+            tuple(
+                (
+                    (x * math.cos(alpha) - y * math.sin(alpha)) + current_pos[0], 
+                    (x * math.sin(alpha) + y * math.cos(alpha)) + current_pos[0]
+                )
+            )
+        )
 
         possible_points.append(
-            tuple((current_pos[0] * cos(beta) - current_pos[1] * sen(beta), current_pos[0] * sen(beta) + current_pos[1] * cos(beta))))
+            tuple(
+                (
+                    (x * math.cos(beta) - y * math.sin(beta)) + current_pos[0], 
+                    (x * math.sin(beta) + y * math.cos(beta)) + current_pos[1]
+                )
+            )
+        )
 
-        # route_to_adjacent = self.trace_diagonal_route(adjacent_blocked_route)
+        x0 = abs(center[0] - possible_points[0][0])
+        y0 = abs(center[1] - possible_points[0][1])
+        d0 = math.sqrt((x0*x0) + (y0*y0))
 
-        pass
+        x1 = abs(center[0] - possible_points[1][0])
+        y1 = abs(center[1] - possible_points[1][1])
+        d1 = math.sqrt((x1*x1) + (y1*y1))
+
+        print(x0,y0)
+        print(x1,y1)
+        print(center[0],center[1])        
+        print(d0,d1)
+
+
+        if(d0 < d1):
+            aux = self.trace_diagonal_route(current_pos,possible_points[0])
+            aux.append(possible_points[0])
+            aux += self.trace_diagonal_route(possible_points[0],route[0])
+
+        else:
+            aux = self.trace_diagonal_route(current_pos,possible_points[1])
+            aux.append(possible_points[1])
+            aux += self.trace_diagonal_route(possible_points[1],route[0])
+
+        route = aux + route
+        return route
 
     def _get_borders(self):
         """
