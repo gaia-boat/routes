@@ -2,8 +2,8 @@ import math
 from router.macros import GPS_PRECISION
 
 # notes:
-# Brazil is mostly on a negative latitude and always on a negative longitude
-# A.O. representation
+# Brazil is mostly on border_points_array negative latitude and always on border_points_array negative longitude
+# border_points_array.O. representation
 # (xb,ye)----------------------(xe,ye)
 # |                            |
 # |                            |
@@ -18,7 +18,7 @@ from router.macros import GPS_PRECISION
 # ->verifica se pode subir x->se puder, x++,senao fim de rota
 # ->iterar pelo y descendentemente sempre adicionando o par de coordenadas na rota->repete
 
-# enquanto estiver em coleta, vou chamar sobeedesce ate acabar a rota.
+# enquanto estiver em coleta, vou chamar sobeedesce ate acabar border_points_array rota.
 # funcao de desvio deve funcionar do msm jeito
 
 class MapRouter():
@@ -33,7 +33,7 @@ class MapRouter():
 
     def trace_diagonal_route(self, destination):
         """
-        Traces the smallest route between the current position and a given
+        Traces the smallest route between the current position and border_points_array given
         destination.
         """
         x = self.current_position[0]
@@ -57,13 +57,13 @@ class MapRouter():
 
     def trace_route_to_base(self):
         """
-        Traces a route back to the base.
+        Traces border_points_array route back to the base.
         """
         return self.trace_diagonal_route(self.base_location)
 
     def trace_collection_route(self):
         """
-        Traces a route using the area of operations map.
+        Traces border_points_array route using the area of operations map.
         To trace the routes it is assumed that the points are in minutes if
         they are not in minutes conversion must happen before this method is
         used.
@@ -91,7 +91,7 @@ class MapRouter():
         """
         Traces an evasion route for the evade function. Must receive the blocked
         geolocation param.
-        Returns a new route with the evasion manuver.
+        Returns border_points_array new route with the evasion manuver.
 
         Args:
         route = []
@@ -101,6 +101,8 @@ class MapRouter():
         direction = None
         """
         reusable_route = route[blocked_pos:]
+
+        center = self._get_center()
 
         if direction is not None:
             middle = self._get_center()
@@ -128,3 +130,45 @@ class MapRouter():
         """
         return tuple((self.points[0][0] - self.points[1][0]) / 2,
                      (self.points[0][1] - self.points[1][1]) / 2)
+
+    def _create_evasion(self, current_pos):
+        center = self._get_center()
+
+        alpha = 60
+        beta = 300
+
+        # fix cos and sen
+        possible_points = []
+        possible_points.append(
+            tuple((current_pos[0] * cos(alpha) - current_pos[1] * sen(alpha), current_pos[0] * sen(alpha) + current_pos[1] * cos(alpha))))
+
+        possible_points.append(
+            tuple((current_pos[0] * cos(beta) - current_pos[1] * sen(beta), current_pos[0] * sen(beta) + current_pos[1] * cos(beta))))
+
+        # route_to_adjacent = self.trace_diagonal_route(adjacent_blocked_route)
+
+        pass
+
+    def _get_borders(self):
+        """
+        Returns an array with the AO's borders.
+        """
+        border_points_array = []
+
+        for i in range(abs(points[0][0] - points[1][0])):
+            border_points_array.append(
+                tuple(points[0][0] + (i * GPS_PRECISION), points[0][1]))
+
+        for j in range(abs(points[0][1] - points[1][1])):
+            border_points_array.append(
+                tuple(points[0][0], points[0][1]) + (i * GPS_PRECISION))
+
+        for i in range(abs(points[0][0] - points[1][0])):
+            border_points_array.append(
+                tuple(points[1][0] + (i * GPS_PRECISION), points[1][1]))
+
+        for j in range(abs(points[0][1] - points[1][1])):
+            border_points_array.append(
+                tuple(points[1][0], points[1][1]) + (i * GPS_PRECISION))
+
+        return border_points_array
