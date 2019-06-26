@@ -11,9 +11,9 @@ class GaiaRouter():
         Execute the router module.
         """
         #get_area
-        points = [(0,0),(10,10)]
+        points = [(-15.82395, -47.8449737),(-15.822749,-47.8444752)]
         #get base
-        base = (5,5)
+        base = (-15.82395, -47.8449737)
         current_position = base
 
         router = MapRouter(points[0],points[1],current_position,base)

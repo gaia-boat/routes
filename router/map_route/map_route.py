@@ -31,6 +31,14 @@ class MapRouter():
         self.current_position = current
         self.base_location = base
 
+    def _calculate_real_distance(point1,point2):
+        distance_x = point2[0] - point1[0]
+        distance_y = point2[1] - point1[1]
+
+        real_distance = math.sqrt(
+            (distance_x * distance_x) + (distance_y * distance_y))
+        return real_distance, distance_x, distance_y
+
     def trace_diagonal_route(self, position, destination):
         """
         Traces the smallest route between the current position and border_points_array given
@@ -38,18 +46,20 @@ class MapRouter():
         """
         x = position[0]
         y = position[1]
-        distance_x = destination[0] - x
-        distance_y = destination[1] - y
+        
+        real_distance, distance_x, distance_y = MapRouter._calculate_real_distance(position,destination)
 
-        real_distance = math.sqrt(
-            (distance_x * distance_x) + (distance_y * distance_y))
+        print(real_distance)
 
-        five_meters_x = GPS_PRECISION * distance_x / real_distance
-        five_meters_y = GPS_PRECISION * distance_y / real_distance
+        if(real_distance <= GPS_PRECISION):
+            print("deu ruim")
+            return []
+
+        five_meters_x = GPS_PRECISION * (distance_x / real_distance)
+        five_meters_y = GPS_PRECISION * (distance_y / real_distance)
 
         route = []
-        while(abs(x - destination[0]) > abs(five_meters_x) and
-              abs(y - destination[1]) > abs(five_meters_y)):
+        while((MapRouter._calculate_real_distance((x,y),destination))[0]>= GPS_PRECISION):
             x += five_meters_x
             y += five_meters_y
             route.append((x, y))
@@ -73,19 +83,15 @@ class MapRouter():
         x = current_position[0]
         y = current_position[1]
 
-        print(self.points[1][0],x)
-
         while(self.points[1][0] - x > GPS_PRECISION):
             x += GPS_PRECISION
             route.append((x, y))
-            print("x - ",route)
 
         y += GPS_PRECISION
         route.append((x, y))
         while(x - self.points[0][0] > GPS_PRECISION):
             x -= GPS_PRECISION
             route.append((x, y))
-            print("y - ",route)
 
         y += GPS_PRECISION
         route.append((x, y))
@@ -110,8 +116,20 @@ class MapRouter():
 
         center = self._get_center()
 
+        co = (route[1][0] - self.current_position[0])
+        ca = (route[1][1] - self.current_position[1])
+
+        angle =0
+        if(ca != 0):
+            tg = co/ca
+            angle = math.atan(tg)
+
+
         alpha = 60 * math.pi / 180
         beta = 300 * math.pi / 180
+
+        alpha += angle
+        beta += angle
 
         point_evade = route.pop(0)
         
@@ -129,7 +147,7 @@ class MapRouter():
             tuple(
                 (
                     (x * math.cos(alpha) - y * math.sin(alpha)) + self.current_position[0], 
-                    (x * math.sin(alpha) + y * math.cos(alpha)) + self.current_position[0]
+                    (x * math.sin(alpha) + y * math.cos(alpha)) + self.current_position[1]
                 )
             )
         )
@@ -151,12 +169,6 @@ class MapRouter():
         y1 = abs(center[1] - possible_points[1][1])
         d1 = math.sqrt((x1*x1) + (y1*y1))
 
-        print(x0,y0)
-        print(x1,y1)
-        print(center[0],center[1])        
-        print(d0,d1)
-
-
         if(d0 < d1):
             aux = self.trace_diagonal_route(self.current_position,possible_points[0])
             aux.append(possible_points[0])
@@ -167,8 +179,7 @@ class MapRouter():
             aux.append(possible_points[1])
             aux += self.trace_diagonal_route(possible_points[1],route[0])
 
-        route = aux + route
-        return route
+        return aux
 
     def _get_borders(self):
         """
