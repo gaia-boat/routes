@@ -3,4 +3,3 @@
 GPS_PRECISION = 1
 
 # GPS_PRECISION = 1
-
