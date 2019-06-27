@@ -39,15 +39,10 @@ setup(  # pragma: no cover
     long_description=codecs.open('README.md', 'rb', 'utf8').read(),
     long_description_content_type='text/markdown',
     author='Gaia boat group',
-    author_email='andre.filho001@outlook.com',
+    author_email='',
     version=codecs.open('VERSION.txt', 'rb', 'utf8').read(),
     packages=find_packages(),
     keywords=['gaia', 'boat', 'pi2'],
-    # entry_points={
-    #     'console_scripts': [
-    #         'ezissue = ezissue.ezissue:main'
-    #     ]
-    # },
     install_requires=REQUIREMENTS,
     license='GNU',
     classifiers=CLASSIFIERS,
