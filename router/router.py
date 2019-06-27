@@ -60,4 +60,5 @@ class GaiaRouter():
 
 if __name__ == "__main__":
     print("===== BEGINNING GAIA BOAT ROUTER")
-    GaiaRouter.run()
+    router = GaiaRouter()
+    router.run()

@@ -1,17 +1,6 @@
 import math
 from router.macros import GPS_PRECISION
 
-# notes:
-# Brazil is mostly on border_points_array negative latitude and always on border_points_array negative longitude
-# border_points_array.O. representation
-# (xb,ye)----------------------(xe,ye)
-# |                            |
-# |                            |
-# |                            |
-# |                            |
-# (xb,yb)----------------------(xb,ye)
-
-
 # rota sera subida e decida, tipo comprimento de onda
 # funcsobeedesce()->verifica se sobe x->se puder, x++, senao fim de rota
 # ->iterar pelo y ascendentemente sempre adicionando o par de coordenadas na rota
@@ -69,7 +58,7 @@ class MapRouter():
         """
         Traces border_points_array route back to the base.
         """
-        return self.trace_diagonal_route(self.current_position,self.base_location)
+        return self.trace_diagonal_route(self.current_position, self.base_location)
 
     def trace_collection_route(self,current_position):
         """
@@ -108,9 +97,12 @@ class MapRouter():
         Gets the middle point inside the operation area.
         """
         return tuple(((self.points[1][0] - self.points[0][0]) / 2,
-                     (self.points[1][1] - self.points[0][1]) / 2))
+                      (self.points[1][1] - self.points[0][1]) / 2))
 
     def trace_evasion_route(self, route):
+        """
+        Traces an evasion route given the next point must be evaded.
+        """
         if(len(route) <= 1):
             return []
 
@@ -172,12 +164,12 @@ class MapRouter():
         if(d0 < d1):
             aux = self.trace_diagonal_route(self.current_position,possible_points[0])
             aux.append(possible_points[0])
-            aux += self.trace_diagonal_route(possible_points[0],route[0])
+            aux += self.trace_diagonal_route(possible_points[0], route[0])
 
         else:
             aux = self.trace_diagonal_route(self.current_position,possible_points[1])
             aux.append(possible_points[1])
-            aux += self.trace_diagonal_route(possible_points[1],route[0])
+            aux += self.trace_diagonal_route(possible_points[1], route[0])
 
         return aux
 
