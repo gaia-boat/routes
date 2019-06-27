@@ -21,7 +21,7 @@ REQUIREMENTS = [str(ir.req) for ir in INSTALL_REQS]
 
 CLASSIFIERS = [
     "Development Status :: 5 - Production/Stable",
-    "Intended Audience :: Everyone",
+    "Intended Audience :: Other Audience",
     "Natural Language :: Portuguese",
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: OS Independent",
@@ -33,13 +33,11 @@ CLASSIFIERS = [
 ]
 
 setup(  # pragma: no cover
-    name='',
-    description="",  # nopep8
-    url='',
+    name='gaia-router',
+    description="Router module for gaia boat.",  # nopep8
+    url='https://github.com/gaia-boat/routes',
     long_description=codecs.open('README.md', 'rb', 'utf8').read(),
     long_description_content_type='text/markdown',
-    author='Gaia boat group',
-    author_email='',
     version=codecs.open('VERSION.txt', 'rb', 'utf8').read(),
     packages=find_packages(),
     keywords=['gaia', 'boat', 'pi2'],
