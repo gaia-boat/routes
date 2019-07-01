@@ -1,5 +1,5 @@
 import math
-from router.macros import GPS_PRECISION
+from gaia_router.macros import GPS_PRECISION
 
 # rota sera subida e decida, tipo comprimento de onda
 # funcsobeedesce()->verifica se sobe x->se puder, x++, senao fim de rota
