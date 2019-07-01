@@ -1,4 +1,4 @@
-from router.map_route.map_route import MapRouter
+from gaia_router.map_route.map_route import MapRouter
 
 
 class GaiaRouter():
