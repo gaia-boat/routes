@@ -8,7 +8,7 @@ install:
 
 script:
 - pytest tests/ -v
-- pycodestyle router/*
+- pycodestyle gaia_router/*
 
 after_script:
 - py.test --cov-report term --cov=. --ignore=tests/* --cov-report=html
